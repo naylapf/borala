@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Oferta de menu')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1 th:text="(${form.id == null} ? 'Nova oferta' : 'Editar oferta') + ' - ' + ${restaurante.nome}">Oferta</h1>
+    <p><a th:href="@{/restaurantes/{id}/ofertas(id=${restaurante.id})}">&larr; Voltar às ofertas</a></p>
+
+    <form th:action="@{/restaurantes/{id}/ofertas(id=${restaurante.id})}" th:object="${form}" method="post">
+        <input type="hidden" th:field="*{id}">
+
+        <div class="campo">
+            <label for="modalidadeMenuId">Modalidade de menu</label>
+            <select th:field="*{modalidadeMenuId}" th:errorclass="invalido">
+                <option value="">Selecione</option>
+                <option th:each="modalidade : ${modalidades}" th:value="${modalidade.id}" th:text="${modalidade.nome}">À la carte</option>
+            </select>
+            <small th:if="${#fields.hasErrors('modalidadeMenuId')}" th:errors="*{modalidadeMenuId}">Erro</small>
+        </div>
+
+        <div th:replace="~{fragments/base :: campoDecimal('Valor (R$)', 'valor')}"></div>
+
+        <div class="campo">
+            <label for="descricao">Descrição (opcional)</label>
+            <textarea th:field="*{descricao}" th:errorclass="invalido"></textarea>
+            <small th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}">Erro</small>
+        </div>
+
+        <button type="submit">Salvar</button>
+        <a th:href="@{/restaurantes/{id}/ofertas(id=${restaurante.id})}">Cancelar</a>
+    </form>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

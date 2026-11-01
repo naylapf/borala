@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Minhas avaliações')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1>Minhas avaliações</h1>
+
+    <p class="mensagem" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+
+    <table>
+        <thead>
+            <tr><th scope="col">Restaurante</th><th scope="col">Nota</th><th scope="col">Comentário</th><th scope="col">Data</th><th scope="col">Ações</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="a : ${avaliacoes}">
+                <td><a th:href="@{/restaurantes/{id}/ver(id=${a.restaurante.id})}" th:text="${a.restaurante.nome}">Restaurante</a></td>
+                <td class="estrelas" th:text="${#strings.repeat('★', a.nota) + #strings.repeat('☆', 5 - a.nota)}">★★★★☆</td>
+                <td th:text="${a.comentario}">Comentário</td>
+                <td th:text="${#temporals.format(a.data, 'dd/MM/yyyy')}">01/01/2026</td>
+                <td class="acoes">
+                    <a th:href="@{/restaurantes/{id}/ver(id=${a.restaurante.id})} + '#avaliar'">Editar</a>
+                    <form th:action="@{/meu/avaliacoes/{id}/excluir(id=${a.id})}" method="post"
+                          onsubmit="return confirm('Excluir esta avaliação?')">
+                        <button type="submit" class="perigo">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(avaliacoes)}">
+                <td colspan="5">Você ainda não avaliou nenhum restaurante. Abra a página de um restaurante para avaliar.</td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

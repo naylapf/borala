@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Cadastro')}"></head>
+<body>
+<div class="divisao">
+    <aside th:replace="~{fragments/base :: painelAzul}"></aside>
+
+    <main id="conteudo" class="painel-form">
+        <h2>Criar conta</h2>
+        <p>Como você quer usar o Bora Lá?</p>
+
+        <div class="opcoes-cadastro">
+            <article class="cartao-opcao">
+                <h3>Sou cliente</h3>
+                <p>Busque restaurantes, salve favoritos e avalie.</p>
+                <a class="botao" th:href="@{/cadastro/cliente}">Cadastrar como cliente</a>
+            </article>
+            <article class="cartao-opcao">
+                <h3>Sou dono de restaurante</h3>
+                <p>Cadastre seu restaurante e monte o cardápio.</p>
+                <a class="botao" th:href="@{/cadastro/dono}">Cadastrar meu restaurante</a>
+            </article>
+        </div>
+
+        <p class="links">Já tem conta? <a th:href="@{/login}">Entrar</a></p>
+    </main>
+</div>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

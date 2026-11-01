@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Horário')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1 th:text="(${form.id == null} ? 'Novo horário' : 'Editar horário') + ' - ' + ${restaurante.nome}">Horário</h1>
+    <p><a th:href="@{/restaurantes/{id}/horarios(id=${restaurante.id})}">&larr; Voltar aos horários</a></p>
+
+    <form th:action="@{/restaurantes/{id}/horarios(id=${restaurante.id})}" th:object="${form}" method="post">
+        <input type="hidden" th:field="*{id}">
+
+        <div class="campo">
+            <label for="diaSemana">Dia da semana</label>
+            <select th:field="*{diaSemana}" th:errorclass="invalido">
+                <option value="">Selecione</option>
+                <option th:each="dia : ${dias}" th:value="${dia}" th:text="${dia.rotulo}">Segunda-feira</option>
+            </select>
+            <small th:if="${#fields.hasErrors('diaSemana')}" th:errors="*{diaSemana}">Erro</small>
+        </div>
+
+        <div th:replace="~{fragments/base :: campo('Abertura', 'abertura', 'time')}"></div>
+        <div th:replace="~{fragments/base :: campo('Fechamento', 'fechamento', 'time')}"></div>
+
+        <button type="submit">Salvar</button>
+        <a th:href="@{/restaurantes/{id}/horarios(id=${restaurante.id})}">Cancelar</a>
+    </form>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

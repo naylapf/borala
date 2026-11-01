@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho(${titulo})}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <p th:if="${voltarUrl}"><a th:href="@{${voltarUrl}}">&larr; Voltar</a></p>
+    <h1 th:text="${form.id == null ? 'Novo item' : 'Editar item'} + ' - ' + ${titulo}">Formulário</h1>
+
+    <form th:action="@{${urlBase}}" th:object="${form}" method="post">
+        <input type="hidden" th:field="*{id}">
+
+        <div class="campo">
+            <label for="nome">Nome</label>
+            <input type="text" th:field="*{nome}" th:errorclass="invalido">
+            <small th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}">Erro</small>
+        </div>
+
+        <button type="submit">Salvar</button>
+        <a th:href="@{${urlBase}}">Cancelar</a>
+    </form>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

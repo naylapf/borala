@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="cabecalho(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Bora Lá - ' + ${titulo}">Bora Lá</title>
+    <link rel="stylesheet" th:href="@{/css/basico.css}">
+</head>
+<body>
+<th:block th:fragment="menu">
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header>
+<nav class="menu" aria-label="Menu principal">
+    <a class="logo" th:href="@{/}"><img th:src="@{/img/logo-cabecalho.png}" alt="Bora Lá - app de gastronomia"></a>
+
+    <th:block th:if="${usuarioLogado != null and usuarioLogado.admin}">
+        <a th:href="@{/usuarios}">Usuários</a>
+        <a th:href="@{/restaurantes}">Restaurantes</a>
+        <a th:href="@{/tipos-culinaria}">Tipos de culinária</a>
+        <a th:href="@{/modalidades-menu}">Modalidades de menu</a>
+    </th:block>
+    <a th:if="${usuarioLogado != null and usuarioLogado.dono}" th:href="@{/dono}">Meus restaurantes</a>
+    <th:block th:if="${usuarioLogado != null and usuarioLogado.cliente}">
+        <a th:href="@{/meu/favoritos}">Favoritos</a>
+        <a th:href="@{/meu/avaliacoes}">Minhas avaliações</a>
+        <a th:href="@{/meu/buscas}">Histórico de buscas</a>
+    </th:block>
+
+    <span class="espaco"></span>
+
+    <th:block th:if="${usuarioLogado != null}">
+        <span class="avatar" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/>
+            </svg>
+        </span>
+        <span class="usuario" th:text="${usuarioLogado.nome}">Nome</span>
+        <form class="sair" th:action="@{/logout}" method="post">
+            <button type="submit">Sair</button>
+        </form>
+    </th:block>
+    <th:block th:if="${usuarioLogado == null}">
+        <a class="btn-claro" th:href="@{/login}">Fazer login</a>
+        <a class="btn-contorno" th:href="@{/cadastro}">Cadastrar-se</a>
+    </th:block>
+</nav>
+</header>
+</th:block>
+
+<!-- Rodapé comum a todas as páginas. -->
+<footer class="rodape" th:fragment="rodape">
+    <p>Bora Lá &middot; app de gastronomia &middot; projeto de Programação Web</p>
+</footer>
+
+<!-- Painel azul das telas de login e cadastro (tela dividida do protótipo). -->
+<aside class="painel-azul" th:fragment="painelAzul">
+    <a th:href="@{/}"><img class="logo-painel" th:src="@{/img/logo-cabecalho.png}" alt="Bora Lá - app de gastronomia"></a>
+    <h1>Fome de que?<br><span>Bora lá</span> descobrir</h1>
+    <span></span>
+</aside>
+
+<!--
+  Filtros da busca de restaurantes (nome, cidade, bairro, culinária e faixa de preço).
+  Precisa dos atributos "filtro" e "tiposCulinaria" no modelo. action = endereço da tela.
+-->
+<form class="filtro" method="get" role="search" aria-label="Buscar restaurantes" th:fragment="filtroBusca(action)" th:action="@{${action}}">
+    <input type="search" name="nome" aria-label="Nome do restaurante" th:value="${filtro.nome}" placeholder="Nome do restaurante">
+    <input type="search" name="cidade" aria-label="Cidade" th:value="${filtro.cidade}" placeholder="Cidade">
+    <input type="search" name="bairro" aria-label="Bairro" th:value="${filtro.bairro}" placeholder="Bairro">
+    <select name="tipoCulinariaId" aria-label="Tipo de culinária">
+        <option value="">Todas as culinárias</option>
+        <option th:each="tipo : ${tiposCulinaria}" th:value="${tipo.id}" th:text="${tipo.nome}"
+                th:selected="${filtro.tipoCulinariaId != null and filtro.tipoCulinariaId == tipo.id}">Italiana</option>
+    </select>
+    <input type="number" name="precoDe" aria-label="Preço mínimo em reais" min="0" step="0.01" th:value="${filtro.precoDe}" placeholder="Preço de R$">
+    <input type="number" name="precoAte" aria-label="Preço máximo em reais" min="0" step="0.01" th:value="${filtro.precoAte}" placeholder="Preço até R$">
+    <button type="submit">Buscar</button>
+    <a th:href="@{${action}}">Limpar</a>
+</form>
+
+<!--
+  Cartão de restaurante (capa, nome, nota média, local, culinárias e faixa de preço).
+  Usa os mapas "capas" e "notas" do modelo, quando existirem (id do restaurante -> foto / nota).
+-->
+<article class="cartao" th:fragment="cartaoRestaurante(restaurante)"
+         th:with="nota=${notas != null ? notas[restaurante.id] : null}, capa=${capas != null ? capas[restaurante.id] : null}">
+    <a class="cartao-capa" th:href="@{/restaurantes/{id}/ver(id=${restaurante.id})}" th:attr="aria-label=${'Ver a página de ' + restaurante.nome}">
+        <img th:if="${capa != null}" th:src="@{${capa}}" alt="" loading="lazy">
+        <span class="sem-foto" th:if="${capa == null}">Sem foto</span>
+    </a>
+    <div class="cartao-corpo">
+        <div class="cartao-titulo">
+            <h3><a th:href="@{/restaurantes/{id}/ver(id=${restaurante.id})}" th:text="${restaurante.nome}">Nome</a></h3>
+            <span th:if="${nota != null}" class="nota">
+                <span class="estrelas" role="img" th:attr="aria-label=${'Nota ' + nota.estrelas + ' de 5, ' + nota.total + ' avaliações'}" th:text="${#strings.repeat('★', nota.estrelas) + #strings.repeat('☆', 5 - nota.estrelas)}">★★★★☆</span>
+                <span class="detalhe" th:text="${'(' + nota.total + ')'}">(10)</span>
+            </span>
+            <span class="detalhe" th:if="${nota == null}">Sem avaliações</span>
+        </div>
+        <p class="local">
+            <svg class="pin" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+            <span th:text="${restaurante.endereco.bairro + ', ' + restaurante.endereco.cidade + '/' + restaurante.endereco.uf}">Bairro, Cidade/UF</span>
+        </p>
+        <p>
+            <span class="etiqueta" th:each="tipo : ${restaurante.tiposCulinaria}" th:text="${tipo.nome}">Italiana</span>
+            <span class="etiqueta verificado" th:if="${restaurante.verificacao}">Verificado</span>
+        </p>
+        <p class="preco" th:if="${restaurante.faixaPreco != null}"
+           th:text="${'R$ ' + #numbers.formatDecimal(restaurante.faixaPreco.minimo, 1, 'POINT', 2, 'COMMA') + ' a R$ ' + #numbers.formatDecimal(restaurante.faixaPreco.maximo, 1, 'POINT', 2, 'COMMA')}">
+            R$ 20,00 a R$ 80,00</p>
+        <p class="detalhe" th:if="${restaurante.faixaPreco == null}">Faixa de preço ainda não disponível</p>
+    </div>
+</article>
+
+<!--
+  Campos reutilizáveis. Devem ficar dentro de um <form th:object="${form}">.
+  rotulo = texto da legenda, campo = nome do atributo do formulário, tipo = type do input.
+-->
+<div class="campo" th:fragment="campo(rotulo, campo, tipo)">
+    <label th:for="${campo}" th:text="${rotulo}">Rótulo</label>
+    <input th:type="${tipo}" th:field="*{__${campo}__}" th:errorclass="invalido">
+    <small th:if="${#fields.hasErrors(campo)}" th:errors="*{__${campo}__}">Erro</small>
+</div>
+
+<!-- Igual ao campo, com uma dica de preenchimento (formato esperado) abaixo do input. -->
+<div class="campo" th:fragment="campoDica(rotulo, campo, tipo, dica)">
+    <label th:for="${campo}" th:text="${rotulo}">Rótulo</label>
+    <input th:type="${tipo}" th:field="*{__${campo}__}" th:errorclass="invalido" th:placeholder="${dica}">
+    <small class="dica" th:text="${'Formato: ' + dica}">Formato</small>
+    <small th:if="${#fields.hasErrors(campo)}" th:errors="*{__${campo}__}">Erro</small>
+</div>
+
+<!-- Mostra a imagem escolhida num input de arquivo antes de enviar e avisa se passar de 5 MB. -->
+<script th:fragment="previaImagem(idInput, idImagem)" th:inline="javascript">
+    (function () {
+        var input = document.getElementById(/*[[${idInput}]]*/ 'arquivo');
+        var imagem = document.getElementById(/*[[${idImagem}]]*/ 'previa');
+        if (!input || !imagem) return;
+        input.addEventListener('change', function () {
+            var arquivo = input.files[0];
+            if (arquivo && arquivo.size > 5 * 1024 * 1024) {
+                alert('A imagem deve ter no máximo 5 MB.');
+                input.value = '';
+                arquivo = null;
+            }
+            if (arquivo) {
+                imagem.src = URL.createObjectURL(arquivo);
+                imagem.hidden = false;
+            } else {
+                imagem.hidden = true;
+            }
+        });
+    })();
+</script>
+
+<div class="campo" th:fragment="campoDecimal(rotulo, campo)">
+    <label th:for="${campo}" th:text="${rotulo}">Rótulo</label>
+    <input type="number" step="0.01" min="0" th:field="*{__${campo}__}" th:errorclass="invalido">
+    <small th:if="${#fields.hasErrors(campo)}" th:errors="*{__${campo}__}">Erro</small>
+</div>
+</body>
+</html>

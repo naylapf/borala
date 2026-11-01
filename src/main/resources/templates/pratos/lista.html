@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Pratos')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <p><a th:href="@{/painel}">&larr; Voltar ao painel</a></p>
+
+    <div class="boas-vindas">
+        <h1>Bem vindo! <span class="destaque-roxo">Bora lá</span> personalizar sua página?</h1>
+        <p th:text="${restaurante.nome} + ' · Adicione, edite ou remova os pratos do cardápio.'">Restaurante</p>
+    </div>
+
+    <p class="mensagem" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+    <p class="erro" th:if="${erro}" th:text="${erro}">Erro</p>
+
+    <div class="atalhos">
+        <a class="botao" th:href="@{/restaurantes/{id}/pratos/novo(id=${restaurante.id})}">Novo prato</a>
+        <a class="botao secundario" th:href="@{/restaurantes/{id}/categorias(id=${restaurante.id})}">Categorias</a>
+        <a class="botao secundario" th:href="@{/restaurantes/{id}/ofertas(id=${restaurante.id})}">Ofertas de menu</a>
+        <a class="botao secundario" th:href="@{/restaurantes/{id}/midias(id=${restaurante.id})}">Fotos e vídeos</a>
+        <a class="botao secundario" th:href="@{/restaurantes/{id}/ver(id=${restaurante.id})}">Ver página pública</a>
+    </div>
+
+    <form class="busca-pratos" th:action="@{/restaurantes/{id}/pratos(id=${restaurante.id})}" method="get">
+        <input type="search" name="busca" aria-label="Pesquisar pratos" th:value="${busca}" placeholder="Pesquisar pratos">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <article class="linha-prato" th:each="prato : ${pratos}">
+        <div class="foto-prato">
+            <img th:if="${prato.foto != null}" th:src="@{${prato.foto}}" alt="">
+            <span th:if="${prato.foto == null}">Sem foto</span>
+        </div>
+        <div class="info">
+            <strong th:text="${prato.nome}">Nome</strong>
+            <p class="detalhe" th:text="${prato.categoria.nome + ' · ' + prato.tipoCulinaria.nome + ' · serve ' + prato.rendimento}">Categoria</p>
+            <p class="preco-prato" th:text="${'Preço: R$' + #numbers.formatDecimal(prato.preco, 1, 'POINT', 2, 'COMMA')}">Preço: R$45,00</p>
+            <p class="detalhe" th:if="${!prato.disponibilidade}">Indisponível</p>
+        </div>
+        <div class="icones">
+            <a class="icone-btn" title="Editar" th:attr="aria-label=${'Editar ' + prato.nome}" th:href="@{/restaurantes/{rid}/pratos/{id}/editar(rid=${restaurante.id}, id=${prato.id})}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>
+                </svg>
+            </a>
+            <form th:action="@{/restaurantes/{rid}/pratos/{id}/excluir(rid=${restaurante.id}, id=${prato.id})}" method="post"
+                  onsubmit="return confirm('Excluir este prato?')">
+                <button type="submit" class="icone-btn lixo" title="Excluir" th:attr="aria-label=${'Excluir ' + prato.nome}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 10v6M14 10v6"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </article>
+    <p th:if="${#lists.isEmpty(pratos)}">Nenhum prato encontrado.</p>
+
+    <section class="caixa-horario">
+        <h3>Horário de Funcionamento</h3>
+        <ul th:if="${!#lists.isEmpty(horarios)}">
+            <li th:each="h : ${horarios}" th:text="${h.diaSemana.rotulo + ': ' + h.abertura + ' às ' + h.fechamento}">Segunda: 11:00 às 22:00</li>
+        </ul>
+        <p class="detalhe" th:if="${#lists.isEmpty(horarios)}">Nenhum horário cadastrado.</p>
+        <a class="botao" th:href="@{/restaurantes/{id}/horarios(id=${restaurante.id})}">Alterar Horário</a>
+    </section>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

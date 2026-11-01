@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Ofertas de menu')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1 th:text="'Ofertas de menu - ' + ${restaurante.nome}">Ofertas de menu</h1>
+    <p><a th:href="@{/painel}">&larr; Voltar ao painel</a></p>
+
+    <p class="mensagem" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+    <p class="erro" th:if="${erro}" th:text="${erro}">Erro</p>
+
+    <p><a class="botao" th:href="@{/restaurantes/{id}/ofertas/novo(id=${restaurante.id})}">Nova oferta</a></p>
+
+    <table>
+        <thead>
+            <tr><th scope="col">Modalidade</th><th scope="col">Valor</th><th scope="col">Descrição</th><th scope="col">Ações</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="oferta : ${ofertas}">
+                <td th:text="${oferta.modalidadeMenu.nome}">À la carte</td>
+                <td th:text="${'R$ ' + #numbers.formatDecimal(oferta.valor, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
+                <td th:text="${oferta.descricao}">Descrição</td>
+                <td class="acoes">
+                    <a th:href="@{/restaurantes/{rid}/ofertas/{id}/pratos(rid=${restaurante.id}, id=${oferta.id})}">Pratos da oferta</a>
+                    <a th:href="@{/restaurantes/{rid}/ofertas/{id}/editar(rid=${restaurante.id}, id=${oferta.id})}">Editar</a>
+                    <form th:action="@{/restaurantes/{rid}/ofertas/{id}/excluir(rid=${restaurante.id}, id=${oferta.id})}" method="post"
+                          onsubmit="return confirm('Excluir esta oferta de menu?')">
+                        <button type="submit" class="perigo">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(ofertas)}">
+                <td colspan="4">Nenhuma oferta cadastrada. Todo restaurante precisa de ao menos uma modalidade de menu.</td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

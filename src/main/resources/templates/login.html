@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Entrar')}"></head>
+<body>
+<div class="divisao">
+    <aside th:replace="~{fragments/base :: painelAzul}"></aside>
+
+    <main id="conteudo" class="painel-form">
+        <h2>Fazer login</h2>
+
+        <div class="caixa-form">
+            <p class="erro" th:if="${param.erro != null}">E-mail ou senha incorretos.</p>
+            <p class="mensagem" th:if="${param.saiu != null}">Você saiu da sua conta.</p>
+            <p class="mensagem" th:if="${param.cadastrado != null}">Cadastro realizado! Entre com o seu e-mail e a senha.</p>
+
+            <form th:action="@{/login}" method="post">
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required autofocus>
+                </div>
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" required>
+                </div>
+                <button class="botao-principal" type="submit">Entrar</button>
+            </form>
+        </div>
+
+        <p class="links">Ainda não tem conta? <a th:href="@{/cadastro}">Cadastre-se</a></p>
+    </main>
+</div>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

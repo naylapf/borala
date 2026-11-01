@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Cadastro de dono')}"></head>
+<body>
+<div class="divisao">
+<aside th:replace="~{fragments/base :: painelAzul}"></aside>
+<main id="conteudo" class="painel-form">
+    <h2>Cadastro de restaurante</h2>
+    <p>Informe seus dados e os dados do restaurante. O cadastro do restaurante fica pendente até ser verificado.</p>
+
+    <form class="caixa-form" th:action="@{/cadastro/dono}" th:object="${form}" method="post">
+        <fieldset>
+            <legend>Seus dados</legend>
+            <div th:replace="~{fragments/base :: campo('Nome', 'nome', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('E-mail', 'email', 'email')}"></div>
+            <div th:replace="~{fragments/base :: campo('Telefone', 'telefone', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('Senha (mínimo de 8 caracteres)', 'senha', 'password')}"></div>
+            <div th:replace="~{fragments/base :: campo('Confirmar senha', 'confirmarSenha', 'password')}"></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Dados do restaurante</legend>
+            <div th:replace="~{fragments/base :: campo('Nome do restaurante', 'restaurante.nome', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campoDica('CNPJ', 'restaurante.cnpj', 'text', '11.222.333/0001-81')}"></div>
+            <div th:replace="~{fragments/base :: campoDica('CNAE', 'restaurante.cnae', 'text', '5611-2/01')}"></div>
+            <div th:replace="~{fragments/base :: campoDica('Telefone do restaurante', 'restaurante.telefone', 'text', '(67) 3333-4444')}"></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Endereço</legend>
+            <div th:replace="~{fragments/base :: campo('Rua ou avenida', 'restaurante.logradouro', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('Bairro', 'restaurante.bairro', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('Cidade', 'restaurante.cidade', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('UF', 'restaurante.uf', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('CEP', 'restaurante.cep', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('Complemento (opcional)', 'restaurante.complemento', 'text')}"></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Culinária</legend>
+            <div class="campo">
+                <label>Tipos de culinária</label>
+                <div class="opcoes">
+                    <label class="opcao" th:each="tipo : ${tiposCulinaria}">
+                        <input type="checkbox" th:field="*{restaurante.tiposCulinariaIds}" th:value="${tipo.id}">
+                        <span th:text="${tipo.nome}">Italiana</span>
+                    </label>
+                </div>
+                <small th:if="${#fields.hasErrors('restaurante.tiposCulinariaIds')}" th:errors="*{restaurante.tiposCulinariaIds}">Erro</small>
+            </div>
+            <p><small>A faixa de preço é calculada automaticamente quando você cadastrar os pratos.</small></p>
+        </fieldset>
+
+        <button class="botao-principal" type="submit">Cadastrar</button>
+    </form>
+    <p class="links"><a th:href="@{/cadastro}">Voltar</a> · Já tem conta? <a th:href="@{/login}">Entrar</a></p>
+</main>
+</div>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

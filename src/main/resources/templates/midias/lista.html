@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Mídias')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1 th:text="'Mídias - ' + ${restaurante.nome}">Mídias</h1>
+    <p><a th:href="@{/painel}">&larr; Voltar ao painel</a></p>
+
+    <p class="mensagem" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+    <p class="erro" th:if="${erro}" th:text="${erro}">Erro</p>
+
+    <p><a class="botao" th:href="@{/restaurantes/{id}/midias/novo(id=${restaurante.id})}">Nova mídia</a></p>
+
+    <table>
+        <thead>
+            <tr><th scope="col">Tipo</th><th scope="col">Mídia</th><th scope="col">Ações</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="midia : ${midias}">
+                <td th:text="${midia.tipo.rotulo}">Foto</td>
+                <td>
+                    <img class="miniatura" th:if="${midia.tipo.name() == 'FOTO'}" th:src="@{${midia.url}}" alt="Foto do restaurante">
+                    <a th:if="${midia.tipo.name() == 'VIDEO'}" th:href="${midia.url}" th:text="${midia.url}" target="_blank" rel="noopener">https://...</a>
+                </td>
+                <td class="acoes">
+                    <a th:href="@{/restaurantes/{rid}/midias/{id}/editar(rid=${restaurante.id}, id=${midia.id})}">Editar</a>
+                    <form th:action="@{/restaurantes/{rid}/midias/{id}/excluir(rid=${restaurante.id}, id=${midia.id})}" method="post"
+                          onsubmit="return confirm('Excluir esta mídia?')">
+                        <button type="submit" class="perigo">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(midias)}">
+                <td colspan="3">Nenhuma mídia cadastrada.</td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

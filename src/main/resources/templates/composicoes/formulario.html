@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Prato da oferta')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1 th:text="(${form.id == null} ? 'Adicionar prato' : 'Editar prato da oferta') + ' - ' + ${oferta.modalidadeMenu.nome}">Prato da oferta</h1>
+    <p><a th:href="@{/restaurantes/{rid}/ofertas/{id}/pratos(rid=${restaurante.id}, id=${oferta.id})}">&larr; Voltar aos pratos da oferta</a></p>
+
+    <p class="erro" th:if="${#lists.isEmpty(pratos)}">
+        Este restaurante ainda não tem pratos.
+        <a th:href="@{/restaurantes/{id}/pratos/novo(id=${restaurante.id})}">Cadastre um prato</a> primeiro.
+    </p>
+
+    <form th:action="@{/restaurantes/{rid}/ofertas/{id}/pratos(rid=${restaurante.id}, id=${oferta.id})}" th:object="${form}" method="post">
+        <input type="hidden" th:field="*{id}">
+
+        <div class="campo">
+            <label for="pratoId">Prato</label>
+            <select th:field="*{pratoId}" th:errorclass="invalido">
+                <option value="">Selecione</option>
+                <option th:each="prato : ${pratos}" th:value="${prato.id}" th:text="${prato.nome}">Prato</option>
+            </select>
+            <small th:if="${#fields.hasErrors('pratoId')}" th:errors="*{pratoId}">Erro</small>
+        </div>
+
+        <div th:replace="~{fragments/base :: campo('Cobrança (ex.: incluso, por pessoa)', 'cobranca', 'text')}"></div>
+
+        <div class="campo">
+            <label for="formaServico">Forma de serviço</label>
+            <select th:field="*{formaServico}" th:errorclass="invalido">
+                <option value="">Selecione</option>
+                <option th:each="forma : ${formas}" th:value="${forma}" th:text="${forma.rotulo}">Servido pelo restaurante</option>
+            </select>
+            <small th:if="${#fields.hasErrors('formaServico')}" th:errors="*{formaServico}">Erro</small>
+        </div>
+
+        <button type="submit">Salvar</button>
+        <a th:href="@{/restaurantes/{rid}/ofertas/{id}/pratos(rid=${restaurante.id}, id=${oferta.id})}">Cancelar</a>
+    </form>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

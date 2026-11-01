@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Início')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <form th:replace="~{fragments/base :: filtroBusca('/')}"></form>
+
+    <p class="mensagem" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+
+    <!-- sem busca ativa: recomendados (cliente logado) ou destaques, e uma fileira por culinária -->
+    <th:block th:if="${secoes != null}">
+        <section th:if="${recomendacao != null}">
+            <h2 th:text="${recomendacao.titulo}">Os restaurantes perfeitos para você</h2>
+            <p class="detalhe" th:text="${recomendacao.explicacao}">Explicação</p>
+            <div class="cartoes" th:if="${!#lists.isEmpty(recomendacao.restaurantes)}">
+                <th:block th:each="restaurante : ${recomendacao.restaurantes}">
+                    <article th:replace="~{fragments/base :: cartaoRestaurante(${restaurante})}"></article>
+                </th:block>
+            </div>
+        </section>
+
+        <section th:if="${recomendacao == null and destaques != null and !#lists.isEmpty(destaques)}">
+            <h2>Os restaurantes perfeitos para você</h2>
+            <div class="cartoes">
+                <th:block th:each="restaurante : ${destaques}">
+                    <article th:replace="~{fragments/base :: cartaoRestaurante(${restaurante})}"></article>
+                </th:block>
+            </div>
+        </section>
+
+        <section th:each="secao : ${secoes}">
+            <div class="cabeca-secao">
+                <h2 th:text="${secao.key.nome == 'Vegetariana'} ? 'Comida Veggie' : ${'Comida ' + secao.key.nome}">Comida Italiana</h2>
+                <a th:href="@{/(tipoCulinariaId=${secao.key.id})}">Ver todos</a>
+            </div>
+            <div class="cartoes">
+                <th:block th:each="restaurante : ${secao.value}">
+                    <article th:replace="~{fragments/base :: cartaoRestaurante(${restaurante})}"></article>
+                </th:block>
+            </div>
+        </section>
+
+        <p th:if="${#maps.isEmpty(secoes)}">Ainda não há restaurantes cadastrados.</p>
+    </th:block>
+
+    <!-- com busca ativa: só os resultados -->
+    <section th:if="${secoes == null}">
+        <h2>Resultados da busca</h2>
+        <div class="cartoes">
+            <th:block th:each="restaurante : ${restaurantes}">
+                <article th:replace="~{fragments/base :: cartaoRestaurante(${restaurante})}"></article>
+            </th:block>
+        </div>
+        <p th:if="${#lists.isEmpty(restaurantes)}">Nenhum restaurante encontrado. <a th:href="@{/}">Limpar a busca</a></p>
+    </section>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

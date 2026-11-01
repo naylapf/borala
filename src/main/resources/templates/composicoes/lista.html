@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Pratos da oferta')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1 th:text="'Pratos da oferta ' + ${oferta.modalidadeMenu.nome} + ' - ' + ${restaurante.nome}">Pratos da oferta</h1>
+    <p><a th:href="@{/restaurantes/{id}/ofertas(id=${restaurante.id})}">&larr; Voltar às ofertas</a></p>
+
+    <p class="mensagem" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+    <p class="erro" th:if="${erro}" th:text="${erro}">Erro</p>
+
+    <p><a class="botao" th:href="@{/restaurantes/{rid}/ofertas/{id}/pratos/novo(rid=${restaurante.id}, id=${oferta.id})}">Adicionar prato</a></p>
+
+    <table>
+        <thead>
+            <tr><th scope="col">Prato</th><th scope="col">Cobrança</th><th scope="col">Forma de serviço</th><th scope="col">Ações</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="composicao : ${composicoes}">
+                <td th:text="${composicao.prato.nome}">Prato</td>
+                <td th:text="${composicao.cobranca}">Incluso</td>
+                <td th:text="${composicao.formaServico.rotulo}">Servido pelo restaurante</td>
+                <td class="acoes">
+                    <a th:href="@{/restaurantes/{rid}/ofertas/{oid}/pratos/{id}/editar(rid=${restaurante.id}, oid=${oferta.id}, id=${composicao.id})}">Editar</a>
+                    <form th:action="@{/restaurantes/{rid}/ofertas/{oid}/pratos/{id}/excluir(rid=${restaurante.id}, oid=${oferta.id}, id=${composicao.id})}" method="post"
+                          onsubmit="return confirm('Remover este prato da oferta?')">
+                        <button type="submit" class="perigo">Remover</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(composicoes)}">
+                <td colspan="4">Nenhum prato nesta oferta.</td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

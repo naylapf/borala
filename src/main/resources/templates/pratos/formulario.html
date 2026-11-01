@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Prato')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1 th:text="(${form.id == null} ? 'Novo prato' : 'Editar prato') + ' - ' + ${restaurante.nome}">Prato</h1>
+    <p><a th:href="@{/restaurantes/{id}/pratos(id=${restaurante.id})}">&larr; Voltar aos pratos</a></p>
+
+    <p class="erro" th:if="${erro}" th:text="${erro}">Erro</p>
+    <p class="erro" th:if="${#lists.isEmpty(categorias)}">
+        Este restaurante ainda não tem categorias.
+        <a th:href="@{/restaurantes/{id}/categorias/novo(id=${restaurante.id})}">Cadastre uma categoria</a> antes de criar pratos.
+    </p>
+
+    <form th:action="@{/restaurantes/{id}/pratos(id=${restaurante.id})}" th:object="${form}" method="post"
+          enctype="multipart/form-data">
+        <input type="hidden" th:field="*{id}">
+
+        <div th:replace="~{fragments/base :: campo('Nome', 'nome', 'text')}"></div>
+
+        <div class="campo">
+            <label for="descricao">Descrição / ingredientes</label>
+            <textarea th:field="*{descricao}" th:errorclass="invalido"></textarea>
+            <small th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}">Erro</small>
+        </div>
+
+        <div th:replace="~{fragments/base :: campoDecimal('Preço (R$)', 'preco')}"></div>
+        <div th:replace="~{fragments/base :: campo('Serve quantas pessoas', 'rendimento', 'number')}"></div>
+
+        <div class="campo">
+            <label for="categoriaId">Categoria</label>
+            <select th:field="*{categoriaId}" th:errorclass="invalido">
+                <option value="">Selecione</option>
+                <option th:each="categoria : ${categorias}" th:value="${categoria.id}" th:text="${categoria.nome}">Massas</option>
+            </select>
+            <small th:if="${#fields.hasErrors('categoriaId')}" th:errors="*{categoriaId}">Erro</small>
+        </div>
+
+        <div class="campo">
+            <label for="tipoCulinariaId">Tipo de culinária</label>
+            <select th:field="*{tipoCulinariaId}" th:errorclass="invalido">
+                <option value="">Selecione</option>
+                <option th:each="tipo : ${tiposCulinaria}" th:value="${tipo.id}" th:text="${tipo.nome}">Italiana</option>
+            </select>
+            <small th:if="${#fields.hasErrors('tipoCulinariaId')}" th:errors="*{tipoCulinariaId}">Erro</small>
+        </div>
+
+        <div class="campo">
+            <label for="arquivoFoto">Foto (JPG, PNG ou WEBP, até 5 MB - opcional)</label>
+            <img id="previaFoto" class="previa" th:if="${form.foto != null}" th:src="@{${form.foto}}" alt="Foto atual do prato">
+            <img id="previaNova" class="previa" alt="Nova foto" hidden>
+            <input type="file" id="arquivoFoto" name="arquivoFoto" accept="image/jpeg,image/png,image/webp"
+                   th:classappend="${#fields.hasErrors('arquivoFoto')} ? 'invalido'">
+            <small th:if="${#fields.hasErrors('arquivoFoto')}" th:errors="*{arquivoFoto}">Erro</small>
+            <label class="opcao" th:if="${form.foto != null}">
+                <input type="checkbox" name="removerFoto" value="true"> Remover a foto atual
+            </label>
+        </div>
+
+        <div class="campo">
+            <label class="opcao"><input type="checkbox" th:field="*{disponibilidade}"> Prato disponível</label>
+        </div>
+
+        <button type="submit">Salvar</button>
+        <a th:href="@{/restaurantes/{id}/pratos(id=${restaurante.id})}">Cancelar</a>
+    </form>
+</main>
+<script th:replace="~{fragments/base :: previaImagem('arquivoFoto', 'previaNova')}"></script>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

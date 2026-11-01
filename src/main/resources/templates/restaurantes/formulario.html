@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Restaurante')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1 th:text="${form.id == null} ? 'Novo restaurante' : 'Editar restaurante'">Restaurante</h1>
+
+    <form th:action="@{${acao ?: '/restaurantes'}}" th:object="${form}" method="post">
+        <input type="hidden" th:field="*{id}">
+
+        <fieldset>
+            <legend>Dados do restaurante</legend>
+            <div th:replace="~{fragments/base :: campo('Nome', 'nome', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campoDica('CNPJ', 'cnpj', 'text', '11.222.333/0001-81')}"></div>
+            <div th:replace="~{fragments/base :: campoDica('CNAE', 'cnae', 'text', '5611-2/01')}"></div>
+            <div th:replace="~{fragments/base :: campoDica('Telefone', 'telefone', 'text', '(67) 3333-4444')}"></div>
+            <div class="campo" th:if="${usuarioLogado != null and usuarioLogado.admin}">
+                <label class="opcao"><input type="checkbox" th:field="*{verificacao}"> Restaurante verificado</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Endereço</legend>
+            <div th:replace="~{fragments/base :: campo('Rua ou avenida', 'logradouro', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('Bairro', 'bairro', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('Cidade', 'cidade', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('UF', 'uf', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('CEP', 'cep', 'text')}"></div>
+            <div th:replace="~{fragments/base :: campo('Complemento (opcional)', 'complemento', 'text')}"></div>
+        </fieldset>
+
+        <p><small>A faixa de preço não é informada: ela é calculada automaticamente a partir dos pratos do cardápio.</small></p>
+
+        <fieldset>
+            <legend>Responsável e culinária</legend>
+            <div class="campo" th:if="${usuarioLogado != null and usuarioLogado.admin}">
+                <label for="donoId">Dono</label>
+                <select th:field="*{donoId}" th:errorclass="invalido">
+                    <option value="">Selecione</option>
+                    <option th:each="dono : ${donos}" th:value="${dono.id}"
+                            th:text="${dono.nome + ' (' + dono.email + ')'}">Nome (email)</option>
+                </select>
+                <small th:if="${#lists.isEmpty(donos)}">Nenhum usuário com papel DONO. Cadastre um em Usuários.</small>
+                <small th:if="${#fields.hasErrors('donoId')}" th:errors="*{donoId}">Erro</small>
+            </div>
+
+            <div class="campo">
+                <label>Tipos de culinária</label>
+                <div class="opcoes">
+                    <label class="opcao" th:each="tipo : ${tiposCulinaria}">
+                        <input type="checkbox" th:field="*{tiposCulinariaIds}" th:value="${tipo.id}">
+                        <span th:text="${tipo.nome}">Italiana</span>
+                    </label>
+                </div>
+                <small th:if="${#fields.hasErrors('tiposCulinariaIds')}" th:errors="*{tiposCulinariaIds}">Erro</small>
+            </div>
+        </fieldset>
+
+        <button type="submit">Salvar</button>
+        <a th:href="@{/painel}">Cancelar</a>
+    </form>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

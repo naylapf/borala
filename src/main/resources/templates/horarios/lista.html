@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Horários')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1 th:text="'Horários de funcionamento - ' + ${restaurante.nome}">Horários</h1>
+    <p><a th:href="@{/painel}">&larr; Voltar ao painel</a></p>
+
+    <p class="mensagem" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+    <p class="erro" th:if="${erro}" th:text="${erro}">Erro</p>
+
+    <p><a class="botao" th:href="@{/restaurantes/{id}/horarios/novo(id=${restaurante.id})}">Novo horário</a></p>
+
+    <table>
+        <thead>
+            <tr><th scope="col">Dia</th><th scope="col">Abertura</th><th scope="col">Fechamento</th><th scope="col">Ações</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="horario : ${horarios}">
+                <td th:text="${horario.diaSemana.rotulo}">Segunda-feira</td>
+                <td th:text="${horario.abertura}">11:00</td>
+                <td th:text="${horario.fechamento}">22:00</td>
+                <td class="acoes">
+                    <a th:href="@{/restaurantes/{rid}/horarios/{id}/editar(rid=${restaurante.id}, id=${horario.id})}">Editar</a>
+                    <form th:action="@{/restaurantes/{rid}/horarios/{id}/excluir(rid=${restaurante.id}, id=${horario.id})}" method="post"
+                          onsubmit="return confirm('Excluir este horário?')">
+                        <button type="submit" class="perigo">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(horarios)}">
+                <td colspan="4">Nenhum horário cadastrado.</td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

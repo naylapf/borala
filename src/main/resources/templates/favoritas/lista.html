@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho('Favoritos')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo">
+    <h1 th:text="'Restaurantes favoritos - ' + ${usuario.nome}">Favoritos</h1>
+    <p><a th:href="@{/usuarios}">&larr; Voltar aos usuários</a></p>
+
+    <p class="mensagem" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+    <p class="erro" th:if="${erro}" th:text="${erro}">Erro</p>
+
+    <form class="filtro" th:action="@{/usuarios/{id}/favoritas(id=${usuario.id})}" th:object="${form}" method="post">
+        <select th:field="*{restauranteId}" th:errorclass="invalido">
+            <option value="">Selecione um restaurante</option>
+            <option th:each="restaurante : ${restaurantes}" th:value="${restaurante.id}"
+                    th:text="${restaurante.nome + ' - ' + restaurante.endereco.cidade}">Restaurante</option>
+        </select>
+        <button type="submit">Adicionar aos favoritos</button>
+        <small th:if="${#fields.hasErrors('restauranteId')}" th:errors="*{restauranteId}">Erro</small>
+    </form>
+
+    <table>
+        <thead>
+            <tr><th scope="col">Restaurante</th><th scope="col">Local</th><th scope="col">Favoritado em</th><th scope="col">Ações</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="favorita : ${favoritas}">
+                <td th:text="${favorita.restaurante.nome}">Restaurante</td>
+                <td th:text="${favorita.restaurante.endereco.bairro + ', ' + favorita.restaurante.endereco.cidade}">Bairro, Cidade</td>
+                <td th:text="${favorita.data}">2026-10-31</td>
+                <td class="acoes">
+                    <form th:action="@{/usuarios/{uid}/favoritas/{id}/excluir(uid=${usuario.id}, id=${favorita.id})}" method="post"
+                          onsubmit="return confirm('Remover dos favoritos?')">
+                        <button type="submit" class="perigo">Remover</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(favoritas)}">
+                <td colspan="4">Nenhum restaurante favorito.</td>
+            </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>

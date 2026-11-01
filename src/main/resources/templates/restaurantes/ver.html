@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: cabecalho(${restaurante.nome})}"></head>
+<body>
+<nav th:replace="~{fragments/base :: menu}"></nav>
+<main id="conteudo" class="pagina-restaurante">
+    <p class="mensagem" th:if="${mensagem}" th:text="${mensagem}">Mensagem</p>
+    <p class="erro" th:if="${erro}" th:text="${erro}">Erro</p>
+
+    <!-- topo: foto de capa, nome, nota e ações -->
+    <section class="topo-restaurante">
+        <div class="galeria-principal">
+            <img th:if="${!#lists.isEmpty(fotos)}" th:src="@{${fotos[0].url}}" alt="Foto do restaurante">
+            <span class="sem-foto" th:if="${#lists.isEmpty(fotos)}">Este restaurante ainda não tem fotos</span>
+        </div>
+        <div class="topo-info">
+            <h1 th:text="${restaurante.nome}">Nome</h1>
+            <p>
+                <span class="etiqueta" th:each="tipo : ${restaurante.tiposCulinaria}" th:text="${tipo.nome}">Italiana</span>
+                <span class="etiqueta verificado" th:if="${restaurante.verificacao}">Verificado</span>
+                <span class="etiqueta pendente" th:unless="${restaurante.verificacao}">Cadastro em verificação</span>
+            </p>
+            <p class="nota" th:if="${resumo != null}">
+                <span class="estrelas" th:text="${#strings.repeat('★', resumo.estrelas) + #strings.repeat('☆', 5 - resumo.estrelas)}">★★★★☆</span>
+                <strong th:text="${resumo.mediaTexto}">4,5</strong>
+                <span class="detalhe" th:text="${'(' + resumo.total + ' avaliações)'}">(10 avaliações)</span>
+            </p>
+            <p class="nota detalhe" th:if="${resumo == null}">Ainda sem avaliações</p>
+
+            <p th:with="e=${restaurante.endereco}">
+                <strong>Endereço:</strong>
+                <span th:text="${e.logradouro + ', ' + e.bairro + ' - ' + e.cidade + '/' + e.uf + ' - CEP ' + #strings.substring(e.cep, 0, 5) + '-' + #strings.substring(e.cep, 5)}">Endereço</span>
+                <span th:if="${e.complemento != null}" th:text="${'(' + e.complemento + ')'}"></span>
+            </p>
+            <p th:with="t=${restaurante.telefone}">
+                <strong>Telefone:</strong>
+                <span th:if="${#strings.length(t) == 11}" th:text="${'(' + #strings.substring(t, 0, 2) + ') ' + #strings.substring(t, 2, 7) + '-' + #strings.substring(t, 7)}">(67) 99999-9999</span>
+                <span th:if="${#strings.length(t) == 10}" th:text="${'(' + #strings.substring(t, 0, 2) + ') ' + #strings.substring(t, 2, 6) + '-' + #strings.substring(t, 6)}">(67) 3333-4444</span>
+                <span th:if="${#strings.length(t) != 11 and #strings.length(t) != 10}" th:text="${t}">telefone</span>
+            </p>
+            <p th:if="${restaurante.faixaPreco != null}">
+                <strong>Pratos de</strong>
+                <span th:text="${'R$ ' + #numbers.formatDecimal(restaurante.faixaPreco.minimo, 1, 'POINT', 2, 'COMMA') + ' a R$ ' + #numbers.formatDecimal(restaurante.faixaPreco.maximo, 1, 'POINT', 2, 'COMMA')}">R$ 20,00 a R$ 80,00</span>
+            </p>
+
+            <div class="acoes-topo">
+                <form th:if="${usuarioLogado != null and usuarioLogado.cliente}"
+                      th:action="@{/meu/favoritos/{id}/alternar(id=${restaurante.id})}" method="post">
+                    <button type="submit" th:classappend="${favorito} ? 'ativo'"
+                            th:text="${favorito} ? '★ Nos favoritos (remover)' : '☆ Favoritar'">Favoritar</button>
+                </form>
+                <a class="botao secundario" th:if="${usuarioLogado != null and usuarioLogado.cliente}" href="#avaliar">Avaliar</a>
+                <a class="botao" th:if="${usuarioLogado == null}" th:href="@{/login}">Entre para favoritar e avaliar</a>
+                <a class="botao secundario" th:if="${usuarioLogado != null and (usuarioLogado.admin or usuarioLogado.dono)}"
+                   th:href="@{/restaurantes/{id}/pratos(id=${restaurante.id})}">Gerenciar restaurante</a>
+            </div>
+        </div>
+    </section>
+
+    <section th:if="${!#lists.isEmpty(fotos) and #lists.size(fotos) > 1}">
+        <h2>Fotos</h2>
+        <div class="galeria">
+            <a th:each="foto : ${fotos}" th:href="@{${foto.url}}" target="_blank" rel="noopener">
+                <img th:src="@{${foto.url}}" alt="Foto do restaurante" loading="lazy">
+            </a>
+        </div>
+    </section>
+
+    <section th:if="${!#lists.isEmpty(videos)}">
+        <h2>Vídeos</h2>
+        <ul>
+            <li th:each="video : ${videos}"><a th:href="${video.url}" th:text="${video.url}" target="_blank" rel="noopener">link</a></li>
+        </ul>
+    </section>
+
+    <div class="duas-colunas">
+        <section>
+            <h2>Horários</h2>
+            <table class="compacta" th:if="${!#lists.isEmpty(horarios)}">
+                <tbody>
+                    <tr th:each="h : ${horarios}">
+                        <td th:text="${h.diaSemana.rotulo}">Segunda</td>
+                        <td th:text="${h.abertura + ' às ' + h.fechamento}">11:00 às 22:00</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="detalhe" th:if="${#lists.isEmpty(horarios)}">Horários não informados.</p>
+        </section>
+
+        <section>
+            <h2>Ofertas de menu</h2>
+            <ul class="lista-simples" th:if="${!#lists.isEmpty(ofertas)}">
+                <li th:each="oferta : ${ofertas}">
+                    <strong th:text="${oferta.modalidadeMenu.nome}">Rodízio</strong>
+                    <span th:text="${'R$ ' + #numbers.formatDecimal(oferta.valor, 1, 'POINT', 2, 'COMMA')}">R$ 80,00</span>
+                    <br><small class="detalhe" th:if="${oferta.descricao != null}" th:text="${oferta.descricao}">Descrição</small>
+                </li>
+            </ul>
+            <p class="detalhe" th:if="${#lists.isEmpty(ofertas)}">Nenhuma oferta de menu cadastrada.</p>
+        </section>
+    </div>
+
+    <section>
+        <h2>Cardápio</h2>
+        <p class="detalhe" th:if="${#maps.isEmpty(cardapio)}">O cardápio ainda não foi cadastrado.</p>
+        <div th:each="categoria : ${cardapio}">
+            <h3 th:text="${categoria.key}">Massas</h3>
+            <div class="pratos">
+                <article class="prato" th:each="prato : ${categoria.value}">
+                    <img th:if="${prato.foto != null}" th:src="@{${prato.foto}}" alt="" loading="lazy">
+                    <div>
+                        <strong th:text="${prato.nome}">Prato</strong>
+                        <span class="preco" th:text="${'R$ ' + #numbers.formatDecimal(prato.preco, 1, 'POINT', 2, 'COMMA')}">R$ 45,00</span>
+                        <p class="detalhe" th:text="${prato.descricao}">Descrição</p>
+                        <small class="detalhe" th:text="${'Serve ' + prato.rendimento + ' pessoa(s) · ' + prato.tipoCulinaria.nome}">Serve 2</small>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="avaliar">
+        <h2>Avaliações</h2>
+
+        <form class="form-avaliacao" th:if="${usuarioLogado != null and usuarioLogado.cliente}"
+              th:action="@{/meu/avaliacoes}" method="post">
+            <h3 th:text="${minhaAvaliacao != null} ? 'Sua avaliação (você pode editar)' : 'Avalie este restaurante'">Avalie</h3>
+            <input type="hidden" name="restauranteId" th:value="${restaurante.id}">
+            <div class="campo">
+                <label for="nota">Nota</label>
+                <select id="nota" name="nota" required>
+                    <option value="">Escolha de 1 a 5</option>
+                    <option th:each="n : ${#numbers.sequence(5, 1)}" th:value="${n}"
+                            th:text="${#strings.repeat('★', n) + ' (' + n + ')'}"
+                            th:selected="${minhaAvaliacao != null and minhaAvaliacao.nota == n}">5</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label for="comentario">Comentário (opcional)</label>
+                <textarea id="comentario" name="comentario" maxlength="500"
+                          th:text="${minhaAvaliacao != null} ? ${minhaAvaliacao.comentario}"></textarea>
+            </div>
+            <button type="submit">Salvar avaliação</button>
+        </form>
+
+        <p class="detalhe" th:if="${#lists.isEmpty(avaliacoes)}">Seja o primeiro a avaliar.</p>
+        <article class="avaliacao" th:each="a : ${avaliacoes}">
+            <p>
+                <strong th:text="${a.usuario.nome}">Maria</strong>
+                <span class="estrelas" th:text="${#strings.repeat('★', a.nota) + #strings.repeat('☆', 5 - a.nota)}">★★★★☆</span>
+                <small class="detalhe" th:text="${#temporals.format(a.data, 'dd/MM/yyyy')}">01/01/2026</small>
+            </p>
+            <p th:if="${a.comentario != null}" th:text="${a.comentario}">Comentário</p>
+        </article>
+    </section>
+</main>
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+</body>
+</html>
